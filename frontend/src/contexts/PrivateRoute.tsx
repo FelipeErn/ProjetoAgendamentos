@@ -1,16 +1,17 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 
-// O PrivateRoute agora apenas verifica a autenticação antes de renderizar o componente
 const PrivateRoute = ({ element, ...rest }: { element: React.ReactNode }) => {
     const { isAuthenticated } = useAuth();
-  
-    if (!isAuthenticated) {
-      return <Navigate to="/login" />;
+    const location = useLocation();
+
+    // Se o usuário não estiver autenticado e tentando acessar uma página diferente de login ou registro
+    if (!isAuthenticated && location.pathname !== "/login" && location.pathname !== "/register") {
+        return <Navigate to="/login" />;
     }
-  
-    return <>{element}</>;  // Use a renderização do React
-  };
+
+    return <>{element}</>;
+};
 
 export default PrivateRoute;

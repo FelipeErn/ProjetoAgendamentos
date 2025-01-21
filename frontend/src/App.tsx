@@ -1,11 +1,11 @@
-// src/App.tsx
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext"; // Importe o AuthProvider
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
+import NovaSenha from "./pages/NewPass";  // Importe a página de Nova Senha
+import PrivateRoute from "./contexts/PrivateRoute"; // Importe o PrivateRoute
 
 const App = () => {
   return (
@@ -14,7 +14,16 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/home" element={<Home />} />
+          
+          {/* Rota privada protegida */}
+          <Route
+            path="/home"
+            element={<PrivateRoute element={<Home />} />}
+          />
+          
+          {/* Rota para a página de redefinir senha */}
+          <Route path="/reset-password/:token" element={<NovaSenha />} />
+          
           {/* Outras rotas */}
         </Routes>
       </Router>
