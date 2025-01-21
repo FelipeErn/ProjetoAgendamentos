@@ -1,11 +1,22 @@
 {
   "compilerOptions": {
-    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "module": "commonjs",                                /* Specify what module code is generated. */
-    "typeRoots": ["node_modules/@types"],
-    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
-    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
-    "strict": true,                                      /* Enable all strict type-checking options. */
-    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  }
+    "target": "es2016",                                /* Definir a versão do JavaScript para a qual o código será compilado. */
+    "module": "commonjs",                              /* Especifica o tipo de módulo a ser gerado. */
+    "typeRoots": ["node_modules/@types"],              /* Onde o TypeScript deve procurar as definições de tipos. */
+    "esModuleInterop": true,                           /* Facilita a importação de módulos CommonJS. */
+    "forceConsistentCasingInFileNames": true,          /* Garante que os nomes de arquivos sejam consistentes no código. */
+    "strict": true,                                    /* Ativa todas as verificações estritas de tipo. */
+    "skipLibCheck": true,                              /* Ignora a verificação de tipos de arquivos `.d.ts`. */
+    "outDir": "./dist",                                /* Diretório de saída para os arquivos JavaScript compilados. */
+    "rootDir": "./src",                                /* Diretório onde os arquivos TypeScript de origem estão localizados. */
+    "resolveJsonModule": true,                         /* Permite importar arquivos JSON diretamente. */
+    "esModuleInterop": true                            /* Habilita a interoperabilidade com módulos ES6. */
+  },
+  "include": [
+    "src/**/*.ts"  /* Inclui todos os arquivos TypeScript na pasta src */
+  ],
+  "exclude": [
+    "node_modules",  /* Exclui a pasta node_modules */
+    "dist"           /* Exclui a pasta dist (onde os arquivos compilados serão gerados) */
+  ]
 }

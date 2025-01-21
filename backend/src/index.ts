@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();  // Carrega as variáveis do .env
+
 import express from "express";
 import { Pool } from "pg";
 import cors from "cors";
