@@ -23,8 +23,6 @@ const App = () => {
           
           {/* Rota para a página de redefinir senha */}
           <Route path="/reset-password/:token" element={<NovaSenha />} />
-          
-          {/* Outras rotas */}
         </Routes>
       </Router>
     </AuthProvider>

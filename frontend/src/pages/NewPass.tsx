@@ -1,81 +1,145 @@
-import React, { useState, useEffect } from "react";
-import axios, { AxiosError } from "axios";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
-// Definindo a tipagem para a estrutura do erro
-interface ErrorResponse {
-  message: string;
-}
-
 const NovaSenha = () => {
-  const { token } = useParams();  // Obtém o token da URL
-  const navigate = useNavigate();
-
-  const [password, setPassword] = useState("");
+  const { token } = useParams(); // Pega o token da URL
+  const navigate = useNavigate(); // Hook para navegação
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Indicador de carregamento
+  const [isTokenValid, setIsTokenValid] = useState<boolean>(false); // Estado para verificar se o token é válido
+  const [newPassword, setNewPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      // Envia a nova senha via POST para o backend
-      await axios.post(
-        `http://localhost:3000/api/users/reset-password/${token}`,
-        { password }
-      );
-
-      setSuccess(true);
-      setError(null);
-
-      // Exibe o sucesso por 2 segundos e redireciona para login
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-    } catch (err) {
-      // Trata os erros do backend
-      const error = err as AxiosError<ErrorResponse>;
-      const errorMessage = error.response?.data?.message || "Erro ao alterar a senha";
-      setError(errorMessage);
-      setSuccess(false);
-    }
-  };
-
-  // Certifique-se de que o token está sendo carregado antes de exibir o formulário
   useEffect(() => {
-    if (!token) {
-      setError("Token inválido ou expirado.");
+    const checkTokenValidity = async () => {
+      try {
+        // Faz a requisição GET para verificar o token
+        const response = await axios.get(
+          `http://localhost:3000/api/users/reset-password/${token}`
+        );
+        console.log("Resposta do backend:", response.data);
+
+        if (response.data.message === "Token válido") {
+          setIsTokenValid(true); // Marca o token como válido
+        } else {
+          setError("Token inválido ou expirado.");
+        }
+      } catch (err) {
+        console.error("Erro ao verificar o token", err);
+        setError("Erro ao verificar o token.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (token) {
+      checkTokenValidity();
     }
   }, [token]);
 
-  return (
-    <div>
-      <h2>Redefinir Senha</h2>
+  // Função para enviar a nova senha
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(""); // Resetar erro antes de tentar a redefinição
 
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      {success && <div style={{ color: "green" }}>Senha alterada com sucesso!</div>}
+    if (newPassword !== confirmPassword) {
+      setError("As senhas não coincidem.");
+      return;
+    }
 
-      {/* Formulário para nova senha */}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="password">Nova Senha:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={handleChange}
-            required
-            minLength={6} // Validação do mínimo de 6 caracteres
-          />
+    try {
+      const response = await axios.patch(
+        "http://localhost:3000/api/users/reset-password",
+        {
+          token,
+          password: newPassword,
+          confirmPassword,
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Senha alterada com sucesso!");
+        navigate("/login"); // Redireciona para a tela de login após sucesso
+      }
+    } catch (err: any) {
+      console.error("Erro ao redefinir a senha:", err);
+
+      if (err.code === "ERR_NETWORK") {
+        setError("Erro de rede: Não foi possível conectar ao servidor.");
+      } else {
+        setError(err.response?.data?.message || "Erro ao redefinir a senha.");
+      }
+    }
+  };
+
+  // Mostra uma tela de carregamento enquanto verifica o token
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="text-lg text-gray-700">Carregando...</div>
+      </div>
+    );
+  }
+
+  // Se o token for inválido, exibe a mensagem de erro
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="bg-red-100 text-red-700 p-6 rounded-lg shadow-md">
+          <p>{error}</p>
         </div>
-        <button type="submit">Alterar Senha</button>
-      </form>
-    </div>
-  );
+      </div>
+    );
+  }
+
+  // Se o token for válido, exibe o formulário de redefinição de senha
+  if (isTokenValid) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+          <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Redefinir Senha</h2>
+
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">Nova Senha</label>
+              <input
+                type="password"
+                id="newPassword"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div className="mb-6">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirmar Senha</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Redefinir Senha
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return null; // Caso contrário, não renderiza nada
 };
 
 export default NovaSenha;

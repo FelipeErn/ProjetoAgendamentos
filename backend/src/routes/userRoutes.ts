@@ -33,7 +33,7 @@ const sendRecoveryEmail = async (email: string, token: string) => {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Recuperação de Senha",
-    text: `Você solicitou a recuperação de senha. Clique no link para redefinir sua senha: http://localhost:3000/api/users/reset-password/${token}`,
+    text: `Você solicitou a recuperação de senha. Clique no link para redefinir sua senha: http://localhost:3001/reset-password/${token}`,
   };
 
   try {
@@ -166,20 +166,29 @@ router.post(
     try {
       const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
       const user = result.rows[0];
-
+    
       if (!user) {
         res.status(400).json({ message: "E-mail não encontrado" });
         return;
       }
-
+    
       const token = jwt.sign(
         { userId: user.id },
-        "seu_segredo", 
+        "seu_segredo", // Use uma variável de ambiente para segurança em produção
         { expiresIn: "1h" }
       );
-
+    
+      const resetTokenExpiry = new Date();
+      resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1);
+    
+      // Atualizar o banco com o token e a expiração
+      await pool.query(
+        "UPDATE users SET reset_token = $1, reset_token_expiry = $2 WHERE id = $3",
+        [token, resetTokenExpiry, user.id]
+      );
+    
       await sendRecoveryEmail(email, token);
-
+    
       res.status(200).json({ message: "E-mail de recuperação enviado!" });
     } catch (err) {
       console.error(err);
@@ -188,11 +197,50 @@ router.post(
   }
 );
 
-// Rota para resetar a senha com token
-router.post(
+// Rota para renderizar o formulário de redefinição de senha
+router.get(
   "/reset-password/:token",
+  async (req: Request, res: Response): Promise<void> => {
+    const { token } = req.params;
+
+    try {
+      // Validar o token
+      const decoded = jwt.verify(token, "seu_segredo") as { userId: string };
+
+      // Verificar no banco de dados
+      const result = await pool.query(
+        "SELECT id FROM users WHERE id = $1 AND reset_token = $2 AND reset_token_expiry > NOW()",
+        [decoded.userId, token]
+      );
+
+      if (result.rows.length === 0) {
+        res.status(400).json({ message: "Token inválido ou expirado" });
+        return;
+      }
+
+      // Se o token for válido, envia a URL para o front-end
+      res.status(200).json({
+        message: "Token válido",
+        redirectUrl: `http://localhost:3001/reset-password/${token}`, // URL da tela de redefinição de senha
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: "Token inválido ou expirado" });
+    }
+  }
+);
+
+// Rota PATCH para redefinir a senha
+router.patch(
+  "/reset-password",
   [
-    body("password").isLength({ min: 6 }).withMessage("A senha deve ter pelo menos 6 caracteres"),
+    body("token").notEmpty().withMessage("Token é obrigatório"),
+    body("password")
+      .isLength({ min: 6 })
+      .withMessage("A senha deve ter pelo menos 6 caracteres"),
+    body("confirmPassword")
+      .custom((value, { req }) => value === req.body.password)
+      .withMessage("As senhas não coincidem"),
   ],
   async (req: Request, res: Response): Promise<void> => {
     const errors = validationResult(req);
@@ -201,19 +249,34 @@ router.post(
       return;
     }
 
-    const { password } = req.body;
-    const { token } = req.params;
+    const { token, password } = req.body;
 
     try {
+      // Validar e decodificar o token
       const decoded = jwt.verify(token, "seu_segredo") as { userId: string };
-      const hashedPassword = await bcrypt.hash(password, 10);
 
-      await pool.query("UPDATE users SET password = $1 WHERE id = $2", [hashedPassword, decoded.userId]);
+      // Verificar se o token está no banco e é válido
+      const result = await pool.query(
+        "SELECT id FROM users WHERE id = $1 AND reset_token = $2 AND reset_token_expiry > NOW()",
+        [decoded.userId, token]
+      );
+
+      if (result.rows.length === 0) {
+        res.status(400).json({ message: "Token inválido ou expirado" });
+        return;
+      }
+
+      // Atualizar a senha
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await pool.query(
+        "UPDATE users SET password = $1, reset_token = NULL, reset_token_expiry = NULL WHERE id = $2",
+        [hashedPassword, decoded.userId]
+      );
 
       res.status(200).json({ message: "Senha alterada com sucesso!" });
     } catch (err) {
       console.error(err);
-      res.status(400).json({ message: "Token inválido ou expirado" });
+      res.status(500).json({ message: "Erro ao redefinir a senha" });
     }
   }
 );
