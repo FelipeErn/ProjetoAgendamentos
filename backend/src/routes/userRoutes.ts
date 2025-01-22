@@ -131,6 +131,7 @@ router.post(
     const { email, password } = req.body;
 
     try {
+      // Buscar o usuário pelo e-mail
       const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
       const user = result.rows[0];
 
@@ -139,6 +140,13 @@ router.post(
         return;
       }
 
+      // Verificar se a conta está ativada
+      if (!user.is_active) {
+        res.status(403).json({ message: "A conta ainda não foi ativada. Verifique seu e-mail para confirmar sua conta." });
+        return;
+      }
+
+      // Verificar a senha
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         res.status(400).json({ message: "Senha incorreta" });
@@ -148,8 +156,8 @@ router.post(
       // Geração do token JWT
       const token = jwt.sign(
         { userId: user.id },
-        "seu_segredo",  // Segredo para assinar o token
-        { expiresIn: "1h" }  // Expiração do token (1 hora)
+        "seu_segredo", // Substitua por uma variável de ambiente para maior segurança
+        { expiresIn: "1h" } // Expiração do token (1 hora)
       );
 
       res.status(200).json({ message: "Login bem-sucedido", token });
@@ -323,13 +331,33 @@ router.get(
       // Validar o token
       const decoded = jwt.verify(token, process.env.CONFIRMATION_SECRET as string) as { userId: string };
 
+      // Verificar se a conta já está ativa
+      const userResult = await pool.query(
+        "SELECT is_active FROM users WHERE id = $1",
+        [decoded.userId]
+      );
+
+      if (userResult.rows.length === 0) {
+        res.status(400).json({ message: "Token inválido ou expirado" });
+        return;
+      }
+
+      const isActive = userResult.rows[0].is_active;
+      if (isActive) {
+        res.status(200).json({
+          message: "Conta já confirmada!",
+          redirectUrl: `http://localhost:3001/email-confirmed`, // URL da tela de confirmação de conta
+        });
+        return;
+      }
+
       // Verificar o token no banco de dados
-      const result = await pool.query(
+      const tokenResult = await pool.query(
         "SELECT id FROM users WHERE id = $1 AND confirmation_token = $2",
         [decoded.userId, token]
       );
 
-      if (result.rows.length === 0) {
+      if (tokenResult.rows.length === 0) {
         res.status(400).json({ message: "Token inválido ou expirado" });
         return;
       }
@@ -345,10 +373,9 @@ router.get(
         return;
       }
 
-      // Se o token for válido, envia a URL de confirmação para o front-end
       res.status(200).json({
         message: "Conta confirmada com sucesso!",
-        redirectUrl: `http://localhost:3001/email-confirmed`, // URL da tela de confirmação de conta
+        redirectUrl: `http://localhost:3001/email-confirmed`,
       });
     } catch (err) {
       console.error("Erro ao confirmar e-mail:", err);
@@ -356,6 +383,51 @@ router.get(
     }
   }
 );
+
+// Rota para reenviar o e-mail de confirmação
+router.post("/resend-confirmation-email", async (req: Request, res: Response): Promise<void> => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400).json({ message: "O e-mail é obrigatório." });
+    return;
+  }
+
+  try {
+    // Verificar se o usuário existe
+    const userQuery = await pool.query("SELECT id, is_active FROM users WHERE email = $1", [email]);
+    const user = userQuery.rows[0];
+
+    if (!user) {
+      res.status(404).json({ message: "Usuário não encontrado." });
+      return;
+    }
+
+    // Verificar se o e-mail já foi ativado
+    if (user.is_active) {
+      res.status(400).json({ message: "O e-mail já foi confirmado." });
+      return;
+    }
+
+    // Gerar um novo token de confirmação
+    const confirmationToken = jwt.sign(
+      { userId: user.id },
+      process.env.CONFIRMATION_SECRET as string,
+      { expiresIn: "24h" }
+    );
+
+    // Salvar o novo token no banco de dados (igual ao processo de registro)
+    await pool.query("UPDATE users SET confirmation_token = $1 WHERE id = $2", [confirmationToken, user.id]);
+
+    // Enviar o e-mail de confirmação
+    await sendConfirmationEmail(email, confirmationToken);
+
+    res.status(200).json({ message: "E-mail de confirmação reenviado com sucesso!" });
+  } catch (err) {
+    console.error("Erro ao reenviar e-mail de confirmação:", err);
+    res.status(500).json({ message: "Erro ao reenviar o e-mail de confirmação." });
+  }
+});
 
 router.post(
   "/register",
@@ -396,9 +468,6 @@ router.post(
 
       // Gerar o token de confirmação
       const confirmationToken = jwt.sign({ userId }, process.env.CONFIRMATION_SECRET as string, { expiresIn: "24h" });
-
-      console.log (confirmationToken)
-      console.log (userId)
 
       // Salvar o token no banco de dados
       try {

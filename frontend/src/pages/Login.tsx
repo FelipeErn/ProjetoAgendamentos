@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext"; // Importe o useAuth para acessar o contexto
+import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -8,19 +8,51 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
-  const { login } = useAuth(); // Acessa a função login do contexto
+  const [showResend, setShowResend] = useState(false); // Controle para mostrar botão de reenviar
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   // Função de login
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError(""); // Resetar erro antes de tentar o login
+    setError("");
+    setShowResend(false); // Reseta o botão de reenviar
 
     try {
-      await login(username, password); // Chama a função login
-      navigate("/home"); // Redireciona para a página inicial após o login
+      await login(username, password);
+      navigate("/home");
     } catch (err: any) {
       setError(err.message || "Erro ao fazer login");
+
+      // Exibe o botão de reenviar se a mensagem for de conta não ativada
+      if (err.message === "A conta ainda não foi ativada. Verifique seu e-mail para confirmar sua conta.") {
+        setShowResend(true);
+      }
+    }
+  };
+
+  // Função para reenviar e-mail de confirmação
+  const handleResendConfirmation = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/resend-confirmation-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: username }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`E-mail de confirmação reenviado para ${username}`);
+        setShowResend(false); // Oculta o botão após o reenvio
+      } else {
+        setError(data.message || "Erro ao reenviar o e-mail de confirmação");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError("Erro ao reenviar o e-mail de confirmação");
     }
   };
 
@@ -32,7 +64,6 @@ const Login = () => {
     }
 
     try {
-      // Aqui você deve enviar o e-mail para o backend
       const response = await fetch("http://localhost:3000/api/users/recover", {
         method: "POST",
         headers: {
@@ -45,7 +76,7 @@ const Login = () => {
 
       if (response.ok) {
         alert(`Instruções de recuperação enviadas para ${resetEmail}`);
-        setIsForgotPasswordOpen(false); // Fecha o modal após sucesso
+        setIsForgotPasswordOpen(false);
       } else {
         setError(data.message || "Erro ao enviar as instruções de recuperação");
       }
@@ -83,9 +114,17 @@ const Login = () => {
             />
           </div>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+          {showResend && (
+            <button
+              onClick={handleResendConfirmation}
+              className="w-full py-2 px-4 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 mt-4"
+            >
+              Reenviar E-mail de Confirmação
+            </button>
+          )}
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
           >
             Entrar
           </button>
