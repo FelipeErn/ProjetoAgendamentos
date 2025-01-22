@@ -1,17 +1,9 @@
 import express, { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
-import { Pool } from "pg";
 import { body, validationResult } from "express-validator";
 import jwt from "jsonwebtoken";  // Importando jwt
 import nodemailer from "nodemailer"; // Importando nodemailer para envio de email
-
-const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "projeto",
-  password: "123456",
-  port: 5432,
-});
+import { pool } from "../db";
 
 const router = express.Router();
 

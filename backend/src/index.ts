@@ -2,9 +2,10 @@ import dotenv from "dotenv";
 dotenv.config();  // Carrega as variáveis do .env
 
 import express from "express";
-import { Pool } from "pg";
+
 import cors from "cors";
 import userRoutes from "./routes/userRoutes";
+import { pool } from "./db";
 
 const app = express();
 
@@ -22,14 +23,6 @@ app.use(cors(corsOptions));
 app.use(express.json()); // Para lidar com dados JSON no corpo da requisição
 
 app.use("/api/users", userRoutes);
-
-const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "projeto",
-  password: "123456",
-  port: 5432,
-});
 
 app.get("/", async (req, res) => {
   const result = await pool.query("SELECT NOW()");
