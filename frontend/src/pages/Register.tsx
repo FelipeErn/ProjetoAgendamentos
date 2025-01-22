@@ -45,7 +45,7 @@ const Register = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-indigo-500 to-blue-600">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Cadastro de Usuário</h2>
+        <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Cadastre-se agora!</h2>
         {error && <div className="text-red-500 text-center mb-4">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -53,6 +53,7 @@ const Register = () => {
             <input
               type="text"
               value={name}
+              placeholder="Seu nome completo"
               onChange={(e) => setName(e.target.value)}
               className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -63,6 +64,7 @@ const Register = () => {
             <input
               type="email"
               value={email}
+              placeholder="seu_email@mail.com"
               onChange={(e) => setEmail(e.target.value)}
               className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -73,6 +75,7 @@ const Register = () => {
             <input
               type="password"
               value={password}
+              placeholder="********"
               onChange={(e) => setPassword(e.target.value)}
               className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -86,7 +89,7 @@ const Register = () => {
           </button>
         </form>
         <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">Já tem uma conta? <a href="/login" className="text-blue-600 hover:underline">Faça login aqui</a></p>
+          <p className="text-sm text-gray-600">Já tem uma conta? <a href="/login" className="text-blue-600 hover:underline">Entrar aqui</a></p>
         </div>
       </div>
     </div>
