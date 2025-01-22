@@ -93,6 +93,35 @@ const updatePassword = async (userId: string, newPassword: string) => {
   );
 };
 
+const sendConfirmationEmail = async (email: string, token: string) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    secure: true,
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Confirmação de Cadastro",
+    text: `Obrigado por se registrar! Confirme seu e-mail clicando no link: http://localhost:3001/confirm-email/${token}`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("E-mail de confirmação enviado com sucesso!");
+  } catch (error) {
+    console.error("Erro ao enviar e-mail de confirmação:", error);
+    throw new Error("Erro ao enviar e-mail de confirmação");
+  }
+};
+
 // Rota de login de usuário
 router.post(
   "/login",
@@ -293,43 +322,83 @@ router.patch(
   }
 );
 
-// Rota de cadastro de usuário
+router.get("/confirm-email/:token", async (req: Request, res: Response) => {
+  const { token } = req.params;
+
+  try {
+    const decoded = jwt.verify(token, "seu_segredo") as { userId: string };
+
+    // Atualizar o banco de dados para ativar a conta
+    const result = await pool.query(
+      "UPDATE users SET is_active = true, confirmation_token = NULL WHERE id = $1 AND confirmation_token = $2",
+      [decoded.userId, token]
+    );
+
+    if (result.rowCount === 0) {
+      res.status(400).json({ message: "Token inválido ou já utilizado" });
+      return;
+    }
+
+    res.status(200).json({ message: "Conta confirmada com sucesso!" });
+  } catch (err) {
+    console.error("Erro ao confirmar e-mail:", err);
+    res.status(400).json({ message: "Token inválido ou expirado" });
+  }
+});
+
 router.post(
   "/register",
   [
-    body("name").not().isEmpty().withMessage("Nome é obrigatório"),
     body("email").isEmail().withMessage("E-mail inválido"),
     body("password")
       .isLength({ min: 6 })
       .withMessage("A senha deve ter pelo menos 6 caracteres"),
+    body("name").notEmpty().withMessage("O nome é obrigatório"),
   ],
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
       return;
     }
 
-    const { name, email, password } = req.body;
+    const { email, password, name } = req.body;
 
     try {
-      const existingUser = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-      if (existingUser.rows.length > 0) {
-        res.status(400).json({ message: "E-mail já está em uso" });
+      // Verificar se o e-mail já está cadastrado
+      const userExists = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
+      if (userExists.rows.length > 0) {
+        res.status(400).json({ message: "E-mail já cadastrado" });
         return;
       }
 
+      // Criptografar a senha
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const result = await pool.query(
+      // Criar o usuário no banco de dados
+      const newUser = await pool.query(
         "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id",
         [name, email, hashedPassword]
       );
 
-      res.status(201).json({ message: "Usuário cadastrado com sucesso!", userId: result.rows[0].id });
+      const userId = newUser.rows[0].id;
+
+      // Gerar o token de confirmação
+      const confirmationToken = jwt.sign({ userId }, "seu_segredo", { expiresIn: "24h" });
+
+      // Salvar o token no banco de dados
+      await pool.query(
+        "UPDATE users SET confirmation_token = $1 WHERE id = $2",
+        [confirmationToken, userId]
+      );
+
+      // Enviar o e-mail de confirmação
+      await sendConfirmationEmail(email, confirmationToken);
+
+      res.status(201).json({ message: "Conta criada com sucesso! Verifique seu e-mail para confirmar sua conta." });
     } catch (err) {
-      console.error(err);
-      next(err);
+      console.error("Erro ao criar conta:", err);
+      res.status(500).json({ message: "Erro ao criar conta" });
     }
   }
 );

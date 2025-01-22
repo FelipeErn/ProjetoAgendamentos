@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import NovaSenha from "./pages/NewPass";  // Importe a página de Nova Senha
 import PrivateRoute from "./contexts/PrivateRoute"; // Importe o PrivateRoute
+import ConfirmEmail from "./pages/ConfirmEmail";
 
 const App = () => {
   return (
@@ -20,6 +21,8 @@ const App = () => {
             path="/home"
             element={<PrivateRoute element={<Home />} />}
           />
+
+          <Route path="/confirm-email/:token" element={<ConfirmEmail />} />
           
           {/* Rota para a página de redefinir senha */}
           <Route path="/reset-password/:token" element={<NovaSenha />} />
