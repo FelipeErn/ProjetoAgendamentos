@@ -254,6 +254,11 @@ router.patch(
     try {
       // Validar e decodificar o token
       const decoded = jwt.verify(token, "seu_segredo") as { userId: string };
+      if (!decoded?.userId) {
+        console.error("Token inválido: userId ausente");
+        res.status(400).json({ message: "Token inválido" });
+        return;
+      }
 
       // Verificar se o token está no banco e é válido
       const result = await pool.query(
@@ -262,20 +267,27 @@ router.patch(
       );
 
       if (result.rows.length === 0) {
+        console.error("Token inválido ou expirado");
         res.status(400).json({ message: "Token inválido ou expirado" });
         return;
       }
 
       // Atualizar a senha
       const hashedPassword = await bcrypt.hash(password, 10);
-      await pool.query(
+      const updateResult = await pool.query(
         "UPDATE users SET password = $1, reset_token = NULL, reset_token_expiry = NULL WHERE id = $2",
         [hashedPassword, decoded.userId]
       );
 
+      if (updateResult.rowCount === 0) {
+        console.error("Falha ao atualizar a senha");
+        res.status(400).json({ message: "Não foi possível atualizar a senha" });
+        return;
+      }
+
       res.status(200).json({ message: "Senha alterada com sucesso!" });
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao redefinir a senha:", err);
       res.status(500).json({ message: "Erro ao redefinir a senha" });
     }
   }
