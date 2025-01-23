@@ -19,7 +19,7 @@ const Register = () => {
         password,
       });
 
-      alert("Usuário cadastrado com sucesso!");
+      alert(response.data.message);
       
       // Limpa os campos após o cadastro
       setName("");

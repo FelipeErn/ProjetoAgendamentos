@@ -58,10 +58,10 @@ registerRoutes.post(
                 console.error('Erro ao executar a query:', err);
             }
 
-            // Enviar o e-mail de confirmação
-            await sendConfirmationEmail(email, confirmationToken);
-
             res.status(201).json({ message: "Conta criada com sucesso! Verifique seu e-mail para confirmar sua conta." });
+            
+            // Enviar o e-mail de confirmação
+            sendConfirmationEmail(email, confirmationToken);
         } catch (err) {
             console.error("Erro ao criar conta:", err);
             res.status(500).json({ message: "Erro ao criar conta" });
