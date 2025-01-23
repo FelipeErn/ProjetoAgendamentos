@@ -132,6 +132,7 @@ registerRoutes.get(
 );
 
 registerRoutes.post("/resend-confirmation-email", async (req: Request, res: Response): Promise<void> => {
+    console.log('testeeee')
     const { email } = req.body;
 
     if (!email) {
