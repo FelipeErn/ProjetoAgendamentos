@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Importe o useNavigate
+import { EyeClosed, Eye } from "@phosphor-icons/react";
 
 const Register = () => {
   const [name, setName] = useState<string>("");
@@ -8,6 +9,7 @@ const Register = () => {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const navigate = useNavigate(); // Inicialize o navigate
+  const [showPassword, setShowPassword] = useState(false); // Controle para mostrar/ocultar
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +22,7 @@ const Register = () => {
       });
 
       alert(response.data.message);
-      
+
       // Limpa os campos após o cadastro
       setName("");
       setEmail("");
@@ -72,14 +74,23 @@ const Register = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Senha</label>
-            <input
-              type="password"
-              value={password}
-              placeholder="********"
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                placeholder="********"
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute top-1/2 bottom-1/2 -translate-y-1/2 right-4 text-gray-500 hover:text-gray-700 focus:outline-none size-6"
+              >
+                {showPassword ? <EyeClosed size={24} /> : <Eye size={24} />}
+              </button>
+            </div>
           </div>
           <button
             type="submit"
@@ -89,7 +100,12 @@ const Register = () => {
           </button>
         </form>
         <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">Já tem uma conta? <a href="/login" className="text-blue-600 hover:underline">Entrar aqui</a></p>
+          <p className="text-sm text-gray-600">
+            Já tem uma conta?{" "}
+            <a href="/login" className="text-blue-600 hover:underline">
+              Entrar aqui
+            </a>
+          </p>
         </div>
       </div>
     </div>

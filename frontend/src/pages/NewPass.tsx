@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { EyeClosed, Eye } from "@phosphor-icons/react";
 
 const NovaSenha = () => {
   const { token } = useParams(); // Pega o token da URL
@@ -10,6 +11,8 @@ const NovaSenha = () => {
   const [isTokenValid, setIsTokenValid] = useState<boolean>(false); // Estado para verificar se o token é válido
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [showNewPassword, setShowNewPassword] = useState(false); // Controle de visibilidade para nova senha
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Controle de visibilidade para confirmar senha
 
   useEffect(() => {
     const checkTokenValidity = async () => {
@@ -101,35 +104,49 @@ const NovaSenha = () => {
           <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Redefinir Senha</h2>
 
           <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">Nova Senha</label>
+          <label htmlFor="newPassword" className="mb-3 block text-sm font-medium text-gray-700">Nova Senha</label>
+            <div className="relative mb-5">
               <input
-                type="password"
+                type={showNewPassword ? "text" : "password"}
                 id="newPassword"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword((prev) => !prev)}
+                className="absolute top-1/2 bottom-1/2 -translate-y-1/2 right-4 text-gray-500 hover:text-gray-700 focus:outline-none size-6"
+              >
+                {showNewPassword ? <EyeClosed size={24} /> : <Eye size={24} />}
+              </button>
             </div>
 
-            <div className="mb-6">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirmar Senha</label>
+            <label htmlFor="confirmPassword" className="mb-3 block text-sm font-medium text-gray-700">Confirmar Senha</label>
+            <div className="relative mb-5">
               <input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className="absolute top-1/2 bottom-1/2 -translate-y-1/2 right-4 text-gray-500 hover:text-gray-700 focus:outline-none size-6"
+              >
+                {showConfirmPassword ? <EyeClosed size={24} /> : <Eye size={24} />}
+              </button>
             </div>
 
             {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-4 w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               Redefinir Senha
             </button>

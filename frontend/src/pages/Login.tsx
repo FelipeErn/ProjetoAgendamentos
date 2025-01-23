@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { EyeClosed, Eye } from "@phosphor-icons/react";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -11,6 +12,9 @@ const Login = () => {
   const [showResend, setShowResend] = useState(false); // Controle para mostrar botão de reenviar
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [resendCooldown, setResendCooldown] = useState(0); // Cooldown em segundos
+  const [resendAttempts, setResendAttempts] = useState(0); // Tentativas de reenvio
+  const [showPassword, setShowPassword] = useState(false); // Controle para mostrar/ocultar senha
 
   // Função de login
   const handleSubmit = async (event: React.FormEvent) => {
@@ -33,24 +37,45 @@ const Login = () => {
 
   // Função para reenviar e-mail de confirmação
   const handleResendConfirmation = async () => {
+    if (resendCooldown > 0) return;
+
     try {
-      const response = await fetch("http://localhost:3000/api/users/register/resend-confirmation-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: username }),
-      });
+      const response = await fetch(
+        "http://localhost:3000/api/users/register/resend-confirmation-email",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: username }),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
         alert(`E-mail de confirmação reenviado para ${username}`);
-        setShowResend(false); // Oculta o botão após o reenvio
+        setResendAttempts((prev) => Math.min(prev + 1, 5)); // Incrementa até no máximo 5
+        const cooldownTime = Math.min((resendAttempts + 1) * 10, 60); // Cresce progressivamente até 60 segundos
+        setResendCooldown(cooldownTime);
+
+        // Inicia o cooldown
+        const interval = setInterval(() => {
+          setResendCooldown((prev) => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+
+        // Reseta as tentativas após 1 minuto
+        setTimeout(() => setResendAttempts(0), 60000);
       } else {
         setError(data.message || "Erro ao reenviar o e-mail de confirmação");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       setError("Erro ao reenviar o e-mail de confirmação");
     }
@@ -102,24 +127,38 @@ const Login = () => {
               required
             />
           </div>
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700">Senha</label>
+          <label className="block text-sm font-medium text-gray-700">Senha</label>
+          <div className="relative">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={password}
               placeholder="********"
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute top-1/2 bottom-1/2 -translate-y-1/2 right-4 text-gray-500 hover:text-gray-700 focus:outline-none size-6"
+            >
+              {showPassword ? <EyeClosed size={24} /> : <Eye size={24} />}
+            </button>
           </div>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           {showResend && (
             <button
               onClick={handleResendConfirmation}
-              className="w-full py-2 px-4 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 mt-4"
+              disabled={resendCooldown > 0}
+              className={`w-full py-2 px-4 font-semibold rounded-md focus:outline-none mt-4 ${
+                resendCooldown > 0
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-500"
+              }`}
             >
-              Reenviar E-mail de Confirmação
+              {resendCooldown > 0
+                ? `Aguarde ${resendCooldown}s para reenviar`
+                : "Reenviar E-mail de Confirmação"}
             </button>
           )}
           <button
@@ -145,6 +184,7 @@ const Login = () => {
           </p>
         </div>
       </div>
+
 
       {/* Modal de recuperação de senha */}
       {isForgotPasswordOpen && (
