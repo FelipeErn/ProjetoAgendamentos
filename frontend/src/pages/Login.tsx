@@ -34,7 +34,7 @@ const Login = () => {
   // Função para reenviar e-mail de confirmação
   const handleResendConfirmation = async () => {
     try {
-      const response = await fetch("http://localhost:3000/resend-confirmation-email", {
+      const response = await fetch("http://localhost:3000/api/users/register/resend-confirmation-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
