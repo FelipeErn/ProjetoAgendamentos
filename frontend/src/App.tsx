@@ -17,7 +17,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<PrivateRoute element={<Home />} />} />
 
-          <Route path="/confirm-email/:token" element={<ConfirmEmail />} />
+          <Route path="/register/confirm-email/:token" element={<ConfirmEmail />} />
           <Route path="/reset-password/:token" element={<NovaSenha />} />
           <Route path="*" element={<Navigate to="/home" />} />
         </Routes>

@@ -10,7 +10,7 @@ const ConfirmEmail = () => {
     const confirmEmail = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/users/confirm-email/${token}`
+          `http://localhost:3000/api/users/register/confirm-email/${token}`
         );
         setMessage(response.data.message);
       } catch (err: any) {
