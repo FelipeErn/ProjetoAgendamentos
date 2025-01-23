@@ -64,7 +64,7 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/users/recover", {
+      const response = await fetch("http://localhost:3000/api/users/reset-password/recover", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
