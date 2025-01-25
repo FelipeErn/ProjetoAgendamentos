@@ -11,7 +11,7 @@ const Sidebar = () => {
       {/* Navegação Principal */}
       <div className="flex-1 p-2">
         <div>
-          <h3 className="p-2 text-base tracking-wider font-semibold text-slate-950 mb-8">
+          <h3 className="p-2 text-sm tracking-wider font-bold text-slate-950 mb-2">
             Menus
           </h3>
           <ul className="space-y-4">
@@ -21,7 +21,7 @@ const Sidebar = () => {
                 className="flex items-center gap-2 p-2 py-2 rounded hover:bg-slate-100 transition"
               >
                 <Gauge size={20} />
-                <span className="leading-none font-semibold text-slate-700">Dashboard</span>
+                <span className="leading-none text-slate-700">Dashboard</span>
               </a>
             </li>
             <li>
@@ -30,7 +30,7 @@ const Sidebar = () => {
                 className="flex items-center gap-2 p-2 py-2 rounded hover:bg-slate-100 transition"
               >
                 <CalendarBlank size={20} />
-                <span className="leading-none font-semibold text-slate-700">Calendário</span>
+                <span className="leading-none text-slate-700">Calendário</span>
               </a>
             </li>
             <li>
@@ -39,7 +39,7 @@ const Sidebar = () => {
                 className="flex items-center gap-2 p-2 py-2 rounded hover:bg-slate-100 transition"
               >
                 <Wallet size={20} />
-                <span className="leading-none font-semibold text-slate-700">Financeiro</span>
+                <span className="leading-none text-slate-700">Financeiro</span>
               </a>
             </li>
             {/* Adicione mais menus aqui futuramente */}
@@ -47,7 +47,7 @@ const Sidebar = () => {
         </div>
 
         <div className="mt-8">
-          <h3 className="p-2 text-base tracking-wider font-semibold text-slate-950 mb-8">
+          <h3 className="p-2 text-sm tracking-wider font-bold text-slate-950 mb-2">
             Mais
           </h3>
           <ul className="space-y-4">
@@ -57,7 +57,7 @@ const Sidebar = () => {
                 className="flex items-center gap-2 p-2 py-2 rounded hover:bg-slate-100 transition"
               >
                 <UserCircle size={20} />
-                <span className="leading-none font-semibold text-slate-700">Perfil</span>
+                <span className="leading-none text-slate-700">Perfil</span>
               </a>
             </li>
             <li>
@@ -66,7 +66,7 @@ const Sidebar = () => {
                 className="flex items-center gap-2 p-2 py-2 rounded hover:bg-slate-100 transition"
               >
                 <Gear size={20} />
-                <span className="leading-none font-semibold text-slate-700">Configurações</span>
+                <span className="leading-none text-slate-700">Configurações</span>
               </a>
             </li>
             <li>
@@ -75,7 +75,7 @@ const Sidebar = () => {
                 className="flex items-center gap-2 p-2 py-2 rounded hover:bg-slate-100 transition"
               >
                 <Question size={20} />
-                <span className="leading-none font-semibold text-slate-700">Ajuda</span>
+                <span className="leading-none text-slate-700">Ajuda</span>
               </a>
             </li>
           </ul>
@@ -86,7 +86,7 @@ const Sidebar = () => {
       <div className="p-4">
         <button className="rounded-lg flex items-center justify-center gap-2 w-full border border-slate-200 bg-transparent hover:bg-slate-100 text-slate-950 py-2 px-4 transition">
           <ArrowFatUp size={20} />
-          <span className="leading-none font-semibold text-slate-950">Upgrade</span>
+          <span className="leading-none text-slate-950">Upgrade</span>
         </button>
       </div>
     </div>

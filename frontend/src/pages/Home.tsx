@@ -5,7 +5,7 @@ const Home = () => {
   return (
     <>
       <Header />
-      <div className="ml-64 mt-16 flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <div className="pl-[255px] pt-[75px] min-h-screen bg-slate-50 w-full flex flex-col">
         <Schedule />
       </div>
     </>
