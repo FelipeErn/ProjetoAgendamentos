@@ -1,17 +1,20 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 
-const PrivateRoute = ({ element, ...rest }: { element: React.ReactNode }) => {
-    const { isAuthenticated } = useAuth();
-    const location = useLocation();
+const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
 
-    // Se o usuário não estiver autenticado e tentando acessar uma página diferente de login ou registro
-    if (!isAuthenticated && location.pathname !== "/login" && location.pathname !== "/register") {
-        return <Navigate to="/login" />;
-    }
+  if (isLoading) {
+    return <></>;
+  }
 
-    return <>{element}</>;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default PrivateRoute;
