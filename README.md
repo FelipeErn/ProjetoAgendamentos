@@ -1,3 +1,3 @@
-Como inicializa o projeto no backend - npx ts-node src/index.ts
+Como inicializa o projeto no backend - npx nodemon
 
-Como inicializa o projeto no frontend - npm start
+Como inicializa o projeto no frontend - npm run dev
