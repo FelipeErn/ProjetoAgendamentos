@@ -90,34 +90,38 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-r from-blue-500 to-indigo-600">
+    <div className="flex justify-center h-screen bg-white">
       {/* Lado esquerdo: Carrossel de imagens */}
       <div className="w-1/2 bg-transparent flex items-center justify-center">
-        <Swiper
+      <Swiper
           slidesPerView={1} // Número de slides visíveis
           loop={true} // Para loop contínuo
           autoplay={{ delay: 2500 }} // Autoplay com intervalo de 2.5 segundos
           className="h-screen"
         >
           <SwiperSlide>
-            <img
-              src="../src/assets/images/ImagemUm.png"
-              alt="Imagem 1"
-              className="h-1/2 object-cover"
-            />
+            <div className="flex items-center justify-center h-full">
+              <img
+                src="../src/assets/images/ImagemUm.png"
+                alt="Imagem 1"
+                className="max-h-[80%] max-w-[80%] object-contain"
+              />
+            </div>
           </SwiperSlide>
           <SwiperSlide>
-            <img
-              src="../src/assets/images/ImagemDois.png"
-              alt="Imagem 2"
-              className="h-1/2 object-cover"
-            />
+            <div className="flex items-center justify-center h-full">
+              <img
+                src="../src/assets/images/ImagemDois.png"
+                alt="Imagem 2"
+                className="max-h-[80%] max-w-[80%] object-contain"
+              />
+            </div>
           </SwiperSlide>
         </Swiper>
       </div>
 
       {/* Lado direito: Formulário de login */}
-      <div className="w-1/2 flex justify-center flex-col bg-white p-40 shadow-lg">
+      <div className="max-w-container w-1/2 flex justify-center flex-col p-40">
         <h2 className="text-3xl font-bold text-start text-gray-800 mb-2">Login</h2>
         <p className="text-start text-gray-600 mb-8">See your growth and get consulting support!</p>
         <form onSubmit={handleSubmit}>
@@ -132,7 +136,7 @@ const Login = () => {
               required
             />
           </div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Senha*</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Senha*</label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -150,12 +154,12 @@ const Login = () => {
               {showPassword ? <EyeClosed size={20} /> : <Eye size={20} />}
             </button>
           </div>
-          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+          {error && <p className="text-red-500 text-center mt-4 mb-4">{error}</p>}
           {showResend && (
             <button
               onClick={handleResendConfirmation}
               disabled={resendCooldown > 0}
-              className={`w-full py-2 px-4 font-semibold rounded-3xl focus:outline-none mt-4 ${
+              className={`w-full py-2 px-4 font-semibold rounded-3xl focus:outline-none ${
                 resendCooldown > 0
                   ? "bg-gray-400 text-gray-700 cursor-not-allowed"
                   : "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-500"
