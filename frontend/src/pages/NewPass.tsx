@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { EyeClosed, Eye } from "@phosphor-icons/react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css"; // Importação do CSS do Swiper
 
 const NovaSenha = () => {
   const { token } = useParams(); // Pega o token da URL
@@ -99,61 +101,105 @@ const NovaSenha = () => {
   // Se o token for válido, exibe o formulário de redefinição de senha
   if (isTokenValid) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600">
-        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-          <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Redefinir Senha</h2>
-
-          <form onSubmit={handleSubmit}>
-          <label htmlFor="newPassword" className="mb-3 block text-sm font-medium text-gray-700">Nova Senha</label>
-            <div className="relative mb-5">
-              <input
-                type={showNewPassword ? "text" : "password"}
-                id="newPassword"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPassword((prev) => !prev)}
-                className="absolute top-1/2 bottom-1/2 -translate-y-1/2 right-4 text-gray-500 hover:text-gray-700 focus:outline-none size-6"
-              >
-                {showNewPassword ? <EyeClosed size={24} /> : <Eye size={24} />}
-              </button>
-            </div>
-
-            <label htmlFor="confirmPassword" className="mb-3 block text-sm font-medium text-gray-700">Confirmar Senha</label>
-            <div className="relative mb-5">
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword((prev) => !prev)}
-                className="absolute top-1/2 bottom-1/2 -translate-y-1/2 right-4 text-gray-500 hover:text-gray-700 focus:outline-none size-6"
-              >
-                {showConfirmPassword ? <EyeClosed size={24} /> : <Eye size={24} />}
-              </button>
-            </div>
-
-            {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-
-            <button
-              type="submit"
-              className="mt-4 w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
+      <div className="flex justify-center h-screen bg-white">
+        {/* Lado esquerdo: Carrossel de imagens */}
+        <div className="w-1/2 bg-transparent flex items-center justify-center">
+          <Swiper
+            slidesPerView={1}
+            loop={true}
+            autoplay={{ delay: 2500 }}
+            className="h-screen"
+          >
+            <SwiperSlide>
+              <div className="flex items-center justify-center h-full">
+                <img
+                  src="../src/assets/images/ImagemUm.png"
+                  alt="Imagem 1"
+                  className="max-h-[80%] max-w-[80%] object-contain"
+                />
+              </div>
+            </SwiperSlide>
+            <SwiperSlide>
+              <div className="flex items-center justify-center h-full">
+                <img
+                  src="../src/assets/images/ImagemDois.png"
+                  alt="Imagem 2"
+                  className="max-h-[80%] max-w-[80%] object-contain"
+                />
+              </div>
+            </SwiperSlide>
+          </Swiper>
+        </div>
+    
+        {/* Lado direito: Formulário de redefinição de senha */}
+        <div className="max-w-container w-1/2 flex justify-center items-center p-40">
+          <div className="w-full">
+            <h2 className="text-3xl font-bold text-start text-gray-800 mb-6">
               Redefinir Senha
-            </button>
-          </form>
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="newPassword"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Nova Senha*
+                </label>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    id="newPassword"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword((prev) => !prev)}
+                    className="absolute top-1/2 bottom-1/2 -translate-y-1/2 right-4 text-gray-500 hover:text-gray-700 focus:outline-none size-6"
+                  >
+                    {showNewPassword ? <EyeClosed size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Confirmar Senha*
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute top-1/2 bottom-1/2 -translate-y-1/2 right-4 text-gray-500 hover:text-gray-700 focus:outline-none size-6"
+                  >
+                    {showConfirmPassword ? <EyeClosed size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+              {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+              <button
+                type="submit"
+                className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-3xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Redefinir Senha
+              </button>
+            </form>
+          </div>
         </div>
       </div>
-    );
+    );    
   }
 
   return null; // Caso contrário, não renderiza nada
