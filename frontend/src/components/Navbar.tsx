@@ -45,7 +45,7 @@ const Navbar: React.FC<NavbarProps> = ({ title }) => {
     >
       <div className="w-full flex justify-between items-center">
         <h1 className="text-2xl font-semibold">{title}</h1>
-        <div className="flex space-x-6 items-center">
+        <div className="flex gap-4 items-center">
           <Link
             to="/agendamentos"
             className="flex py-2 px-4 gap-2 items-center justify-center hover:underline text-lg font-medium bg-slate-950 hover:bg-slate-900 rounded-lg"
