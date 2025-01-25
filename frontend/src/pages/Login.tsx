@@ -92,8 +92,8 @@ const Login = () => {
   return (
     <div className="flex justify-center h-screen bg-white">
       {/* Lado esquerdo: Carrossel de imagens */}
-      <div className="w-1/2 bg-transparent flex items-center justify-center">
-      <Swiper
+      <div className="w-1/2 bg-violet-800 flex items-center justify-center">
+        <Swiper
           slidesPerView={1} // Número de slides visíveis
           loop={true} // Para loop contínuo
           autoplay={{ delay: 2500 }} // Autoplay com intervalo de 2.5 segundos
@@ -121,94 +121,95 @@ const Login = () => {
       </div>
 
       {/* Lado direito: Formulário de login */}
-      <div className="max-w-container w-1/2 flex justify-center flex-col p-40">
-        <h2 className="text-3xl font-bold text-start text-gray-800 mb-2">Login</h2>
-        <p className="text-start text-gray-600 mb-8">See your growth and get consulting support!</p>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2 ">E-mail*</label>
-            <input
-              type="email"
-              value={username}
-              placeholder="seu_email@mail.com"
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Senha*</label>
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              placeholder="********"
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+      <div className="w-1/2 flex items-center justify-center">
+        <div className="flex justify-center flex-col max-w-[400px] w-full">
+          <h2 className="text-3xl font-bold text-start text-gray-800 mb-2">Login</h2>
+          <p className="text-start text-gray-600 mb-8">See your growth and get consulting support!</p>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2 ">E-mail*</label>
+              <input
+                type="email"
+                value={username}
+                placeholder="seu_email@mail.com"
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Senha*</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                placeholder="********"
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute top-1/2 bottom-1/2 -translate-y-1/2 right-4 text-gray-500 hover:text-gray-700 focus:outline-none size-6"
+              >
+                {showPassword ? <EyeClosed size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {error && <p className="text-red-500 text-center mt-4 mb-4">{error}</p>}
+            {showResend && (
+              <button
+                onClick={handleResendConfirmation}
+                disabled={resendCooldown > 0}
+                className={`w-full py-2 px-4 font-semibold rounded-3xl focus:outline-none ${resendCooldown > 0
+                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                    : "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-500"
+                  }`}
+              >
+                {resendCooldown > 0
+                  ? `Aguarde ${resendCooldown}s para reenviar`
+                  : "Reenviar E-mail de Confirmação"}
+              </button>
+            )}
+            <div className="flex items-center justify-between mt-4">
+              <label className="flex items-center text-sm text-gray-600">
+                <input type="checkbox" className="mr-2" /> Lembrar-me
+              </label>
+              <p
+                onClick={() => setIsForgotPasswordOpen(true)}
+                className="text-sm text-blue-600 font-semibold hover:underline cursor-pointer"
+              >
+                Esqueceu sua senha?
+              </p>
+            </div>
             <button
-              type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute top-1/2 bottom-1/2 -translate-y-1/2 right-4 text-gray-500 hover:text-gray-700 focus:outline-none size-6"
+              type="submit"
+              className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-3xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-6"
             >
-              {showPassword ? <EyeClosed size={20} /> : <Eye size={20} />}
+              Entrar
             </button>
+          </form>
+          {/* Linha e "ou" */}
+          <div className="my-6 flex items-center justify-center text-gray-600">
+            <hr className="w-1/4 border-t border-gray-300" />
+            <span className="mx-4">ou</span>
+            <hr className="w-1/4 border-t border-gray-300" />
           </div>
-          {error && <p className="text-red-500 text-center mt-4 mb-4">{error}</p>}
-          {showResend && (
-            <button
-              onClick={handleResendConfirmation}
-              disabled={resendCooldown > 0}
-              className={`w-full py-2 px-4 font-semibold rounded-3xl focus:outline-none ${
-                resendCooldown > 0
-                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                  : "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-500"
-              }`}
-            >
-              {resendCooldown > 0
-                ? `Aguarde ${resendCooldown}s para reenviar`
-                : "Reenviar E-mail de Confirmação"}
-            </button>
-          )}
-          <div className="flex items-center justify-between mt-4">
-            <label className="flex items-center text-sm text-gray-600">
-              <input type="checkbox" className="mr-2" /> Lembrar-me
-            </label>
-            <p
-              onClick={() => setIsForgotPasswordOpen(true)}
-              className="text-sm text-blue-600 font-semibold hover:underline cursor-pointer"
-            >
-              Esqueceu sua senha?
+
+          {/* Botão para "Entrar com o Google" */}
+          <button
+            type="button"
+            className="w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-3xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            Entrar com o Google
+          </button>
+          <div className="mt-6 text-start">
+            <p className="text-sm text-gray-600">
+              Ainda não tem uma conta?{" "}
+              <a href="/register" className="text-blue-600 font-semibold hover:underline">
+                Criar conta
+              </a>
             </p>
           </div>
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-3xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-6"
-          >
-            Entrar
-          </button>
-        </form>
-        {/* Linha e "ou" */}
-        <div className="my-6 flex items-center justify-center text-gray-600">
-          <hr className="w-1/4 border-t border-gray-300" />
-          <span className="mx-4">ou</span>
-          <hr className="w-1/4 border-t border-gray-300" />
-        </div>
-
-        {/* Botão para "Entrar com o Google" */}
-        <button
-          type="button"
-          className="w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-3xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-        >
-          Entrar com o Google
-        </button>
-        <div className="mt-6 text-start">
-          <p className="text-sm text-gray-600">
-            Ainda não tem uma conta?{" "}
-            <a href="/register" className="text-blue-600 font-semibold hover:underline">
-              Criar conta
-            </a>
-          </p>
         </div>
       </div>
 
