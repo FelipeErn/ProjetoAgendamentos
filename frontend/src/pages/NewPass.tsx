@@ -103,7 +103,7 @@ const NovaSenha = () => {
     return (
       <div className="flex justify-center h-screen bg-white">
         {/* Lado esquerdo: Carrossel de imagens */}
-        <div className="w-1/2 bg-transparent flex items-center justify-center">
+        <div className="w-1/2 bg-violet-800 flex items-center justify-center">
           <Swiper
             slidesPerView={1}
             loop={true}
@@ -132,8 +132,8 @@ const NovaSenha = () => {
         </div>
     
         {/* Lado direito: Formulário de redefinição de senha */}
-        <div className="max-w-container w-1/2 flex justify-center items-center p-40">
-          <div className="w-full">
+        <div className="w-1/2 flex items-center justify-center">
+          <div className="flex justify-center flex-col max-w-[400px] w-full">
             <h2 className="text-3xl font-bold text-start text-gray-800 mb-6">
               Redefinir Senha
             </h2>
@@ -199,7 +199,8 @@ const NovaSenha = () => {
           </div>
         </div>
       </div>
-    );    
+    );
+        
   }
 
   return null; // Caso contrário, não renderiza nada

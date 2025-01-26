@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { EyeClosed, Eye } from "@phosphor-icons/react";
@@ -12,11 +12,19 @@ const Login = () => {
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [showResend, setShowResend] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendAttempts, setResendAttempts] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false); // Adicionando o controle de "Lembrar-me"
+  
+  const { login, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/home"); // Redireciona para a página inicial se já estiver autenticado
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -24,7 +32,7 @@ const Login = () => {
     setShowResend(false);
 
     try {
-      await login(username, password);
+      await login(username, password, rememberMe); // Passando o "rememberMe"
       navigate("/home");
     } catch (err: any) {
       setError(err.message || "Erro ao fazer login");
@@ -172,7 +180,13 @@ const Login = () => {
             )}
             <div className="flex items-center justify-between mt-4">
               <label className="flex items-center text-sm text-gray-600">
-                <input type="checkbox" className="mr-2" /> Lembrar-me
+                <input
+                  type="checkbox"
+                  className="mr-2"
+                  checked={rememberMe}
+                  onChange={() => setRememberMe((prev) => !prev)} // Atualiza o estado de "Lembrar-me"
+                />
+                Lembrar-me
               </label>
               <p
                 onClick={() => setIsForgotPasswordOpen(true)}
@@ -194,55 +208,21 @@ const Login = () => {
             <span className="mx-4">ou</span>
             <hr className="w-1/4 border-t border-gray-300" />
           </div>
-
-          {/* Botão para "Entrar com o Google" */}
-          <button
-            type="button"
-            className="w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-3xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            Entrar com o Google
+          <button className="w-full py-2 px-4 bg-red-500 text-white font-semibold rounded-3xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+            Entrar com Google
           </button>
-          <div className="mt-6 text-start">
-            <p className="text-sm text-gray-600">
-              Ainda não tem uma conta?{" "}
-              <a href="/register" className="text-blue-600 font-semibold hover:underline">
-                Criar conta
-              </a>
-            </p>
-          </div>
+          <p className="text-center mt-4 text-sm">
+            Não tem conta?{" "}
+            <a
+              href="#"
+              onClick={() => navigate("/register")}
+              className="text-blue-600 font-semibold hover:underline"
+            >
+              Criar conta
+            </a>
+          </p>
         </div>
       </div>
-
-      {/* Modal de recuperação de senha */}
-      {isForgotPasswordOpen && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-xl font-semibold text-center text-gray-800 mb-4">Recuperação de Senha</h3>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Informe seu e-mail</label>
-              <input
-                type="email"
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <button
-              onClick={handleForgotPassword}
-              className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Enviar Instruções
-            </button>
-            <button
-              onClick={() => setIsForgotPasswordOpen(false)}
-              className="w-full py-2 px-4 mt-4 bg-gray-300 text-gray-700 font-semibold rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

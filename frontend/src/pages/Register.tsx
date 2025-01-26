@@ -49,7 +49,7 @@ const Register = () => {
   return (
     <div className="flex justify-center h-screen bg-white">
       {/* Lado esquerdo: Carrossel de imagens */}
-      <div className="w-1/2 bg-transparent flex items-center justify-center">
+      <div className="w-1/2 bg-violet-800 flex items-center justify-center">
         <Swiper
           slidesPerView={1}
           loop={true}
@@ -78,15 +78,15 @@ const Register = () => {
       </div>
   
       {/* Lado direito: Formulário de registro */}
-      <div className="max-w-container w-1/2 flex justify-center items-center p-40">
-        <div className="w-full">
-          <h2 className="text-3xl font-bold text-start text-gray-800 mb-6">
-            Cadastre-se agora!
-          </h2>
-          {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 ">Nome*</label>
+      <div className="w-1/2 flex items-center justify-center">
+        <div className="flex justify-center flex-col max-w-[400px] w-full">
+          <h2 className="text-3xl font-bold text-start text-gray-800 mb-2">Cadastre-se</h2>
+          <p className="text-start text-gray-600 mb-8">
+            Crie sua conta e comece a usar nossos serviços!
+          </p>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nome*</label>
               <input
                 type="text"
                 value={name}
@@ -96,8 +96,8 @@ const Register = () => {
                 required
               />
             </div>
-            <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 ">E-mail*</label>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">E-mail*</label>
               <input
                 type="email"
                 value={email}
@@ -107,8 +107,8 @@ const Register = () => {
                 required
               />
             </div>
-            <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Senha*</label>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Senha*</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -134,7 +134,20 @@ const Register = () => {
               Cadastrar
             </button>
           </form>
-          <div className="mt-4 text-start">
+          {/* Linha e "ou" */}
+          <div className="my-6 flex items-center justify-center text-gray-600">
+            <hr className="w-1/4 border-t border-gray-300" />
+            <span className="mx-4">ou</span>
+            <hr className="w-1/4 border-t border-gray-300" />
+          </div>
+          {/* Botão para "Cadastrar com o Google" */}
+          <button
+            type="button"
+            className="w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-3xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            Cadastrar com o Google
+          </button>
+          <div className="mt-6 text-start">
             <p className="text-sm text-gray-600">
               Já tem uma conta?{" "}
               <a href="/login" className="text-blue-600 font-semibold hover:underline">

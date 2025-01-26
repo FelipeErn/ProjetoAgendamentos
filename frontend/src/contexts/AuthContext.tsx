@@ -9,8 +9,8 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  isLoading: boolean; // Adicionado
-  login: (username: string, password: string) => Promise<void>;
+  isLoading: boolean;
+  login: (username: string, password: string, rememberMe: boolean) => Promise<void>;
   logout: () => void;
 }
 
@@ -23,21 +23,26 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Estado de carregamento
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Carregar estado inicial do localStorage
+  // Verificar sessionStorage e localStorage ao carregar
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const storedUser = localStorage.getItem("user");
+    const sessionToken = sessionStorage.getItem("authToken");
+    const sessionUser = sessionStorage.getItem("user");
+    const localToken = localStorage.getItem("authToken");
+    const localUser = localStorage.getItem("user");
 
-    if (token && storedUser) {
+    if (sessionToken && sessionUser) {
       setIsAuthenticated(true);
-      setUser(JSON.parse(storedUser));
+      setUser(JSON.parse(sessionUser));
+    } else if (localToken && localUser) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(localUser));
     }
-    setIsLoading(false); // Concluído o carregamento
+    setIsLoading(false);
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string, rememberMe: boolean) => {
     const response = await fetch("http://localhost:3000/api/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -47,8 +52,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const data = await response.json();
 
     if (response.ok) {
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("user", JSON.stringify({ name: data.name, email: data.email }));
+      // Armazenar no sessionStorage ou localStorage com base no "Lembrar-me"
+      if (rememberMe) {
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("user", JSON.stringify({ name: data.name, email: data.email }));
+      } else {
+        sessionStorage.setItem("authToken", data.token);
+        sessionStorage.setItem("user", JSON.stringify({ name: data.name, email: data.email }));
+      }
+
       setUser({ name: data.name, email: data.email });
       setIsAuthenticated(true);
     } else {
@@ -57,8 +69,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
+    // Remover dos dois tipos de armazenamento
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("authToken");
+    sessionStorage.removeItem("user");
     setUser(null);
     setIsAuthenticated(false);
   };
