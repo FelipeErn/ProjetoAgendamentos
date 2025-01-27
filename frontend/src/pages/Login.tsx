@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { EyeClosed, Eye } from "@phosphor-icons/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css"; // Importação do CSS do Swiper
+import { GoogleLogin } from "@react-oauth/google"; // Importando o componente GoogleLogin
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -88,12 +89,36 @@ const Login = () => {
       const data = await response.json();
       if (response.ok) {
         alert(`Instruções de recuperação enviadas para ${resetEmail}`);
-        setIsForgotPasswordOpen(false);
+        setIsForgotPasswordOpen(false); // Fecha o modal após o envio
       } else {
         setError(data.message || "Erro ao enviar as instruções de recuperação");
       }
     } catch (err) {
       setError("Erro ao enviar as instruções de recuperação");
+    }
+  };
+
+  // Função para lidar com o login via Google
+  const handleGoogleLogin = async (response: any) => {
+    try {
+      const { credential } = response;
+      // Enviar o token para o backend para autenticação
+      const res = await fetch("http://localhost:3000/api/users/login/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: credential }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        // Sucesso no login com Google
+        navigate("/home");
+      } else {
+        setError(data.message || "Erro ao fazer login com o Google");
+      }
+    } catch (err) {
+      setError("Erro ao fazer login com o Google");
     }
   };
 
@@ -208,9 +233,14 @@ const Login = () => {
             <span className="mx-4">ou</span>
             <hr className="w-1/4 border-t border-gray-300" />
           </div>
-          <button className="w-full py-2 px-4 bg-red-500 text-white font-semibold rounded-3xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
-            Entrar com Google
-          </button>
+          <GoogleLogin
+            onSuccess={handleGoogleLogin} // Sucesso no login com Google
+            onError={() => setError("Erro ao fazer login com o Google")} // Erro no login com Google
+            useOneTap
+            theme="outline"
+            shape="rectangular"
+            size="large"
+          />
           <p className="text-center mt-4 text-sm">
             Não tem conta?{" "}
             <a
@@ -223,6 +253,38 @@ const Login = () => {
           </p>
         </div>
       </div>
+
+      {/* Modal de recuperação de senha */}
+      {isForgotPasswordOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg w-96">
+            <h3 className="text-xl font-semibold mb-4">Recuperar Senha</h3>
+            <label className="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
+            <input
+              type="email"
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              placeholder="seu_email@mail.com"
+              className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={() => setIsForgotPasswordOpen(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-3xl"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleForgotPassword}
+                className="px-4 py-2 bg-blue-600 text-white rounded-3xl"
+              >
+                Enviar Instruções
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

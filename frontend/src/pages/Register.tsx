@@ -17,11 +17,14 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:3000/api/users/register", {
-        name,
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/users/register",
+        {
+          name,
+          email,
+          password,
+        }
+      );
 
       alert(response.data.message);
 
@@ -40,6 +43,13 @@ const Register = () => {
           .map((error: { msg: string }) => error.msg)
           .join(", ");
         setError(errorMessages); // Exibe todas as mensagens de erro
+      } else if (err.response && err.response.data.message) {
+        // Erro específico de email já em uso
+        if (err.response.data.message === "Email já está em uso") {
+          setError("Este e-mail já está em uso. Tente outro.");
+        } else {
+          setError(err.response.data.message); // Exibe outra mensagem de erro genérica
+        }
       } else {
         setError("Erro ao cadastrar usuário");
       }
@@ -76,17 +86,21 @@ const Register = () => {
           </SwiperSlide>
         </Swiper>
       </div>
-  
+
       {/* Lado direito: Formulário de registro */}
       <div className="w-1/2 flex items-center justify-center">
         <div className="flex justify-center flex-col max-w-[400px] w-full">
-          <h2 className="text-3xl font-bold text-start text-gray-800 mb-2">Cadastre-se</h2>
+          <h2 className="text-3xl font-bold text-start text-gray-800 mb-2">
+            Cadastre-se
+          </h2>
           <p className="text-start text-gray-600 mb-8">
             Crie sua conta e comece a usar nossos serviços!
           </p>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nome*</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nome*
+              </label>
               <input
                 type="text"
                 value={name}
@@ -97,7 +111,9 @@ const Register = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">E-mail*</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                E-mail*
+              </label>
               <input
                 type="email"
                 value={email}
@@ -107,8 +123,10 @@ const Register = () => {
                 required
               />
             </div>
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Senha*</label>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Senha*
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -127,6 +145,7 @@ const Register = () => {
                 </button>
               </div>
             </div>
+            {error && <p className="text-red-500 text-center mb-4">{error}</p>} {/* Exibe erro */}
             <button
               type="submit"
               className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-3xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -134,23 +153,13 @@ const Register = () => {
               Cadastrar
             </button>
           </form>
-          {/* Linha e "ou" */}
-          <div className="my-6 flex items-center justify-center text-gray-600">
-            <hr className="w-1/4 border-t border-gray-300" />
-            <span className="mx-4">ou</span>
-            <hr className="w-1/4 border-t border-gray-300" />
-          </div>
-          {/* Botão para "Cadastrar com o Google" */}
-          <button
-            type="button"
-            className="w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-3xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            Cadastrar com o Google
-          </button>
           <div className="mt-6 text-start">
             <p className="text-sm text-gray-600">
               Já tem uma conta?{" "}
-              <a href="/login" className="text-blue-600 font-semibold hover:underline">
+              <a
+                href="/login"
+                className="text-blue-600 font-semibold hover:underline"
+              >
                 Entrar aqui
               </a>
             </p>
@@ -159,7 +168,6 @@ const Register = () => {
       </div>
     </div>
   );
-  
 };
 
 export default Register;
