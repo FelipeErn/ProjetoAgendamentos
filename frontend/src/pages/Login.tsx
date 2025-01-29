@@ -4,7 +4,10 @@ import { useAuth } from "../contexts/AuthContext";
 import { EyeClosed, Eye } from "@phosphor-icons/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css"; // Importação do CSS do Swiper
+import { Autoplay, Pagination } from 'swiper/modules';
 import { GoogleLogin } from "@react-oauth/google"; // Importando o componente GoogleLogin
+
+import 'swiper/css/pagination';
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -127,26 +130,32 @@ const Login = () => {
       {/* Lado esquerdo: Carrossel de imagens */}
       <div className="w-1/2 bg-violet-800 flex items-center justify-center">
         <Swiper
-          slidesPerView={1} // Número de slides visíveis
-          loop={true} // Para loop contínuo
-          autoplay={{ delay: 2500 }} // Autoplay com intervalo de 2.5 segundos
+          modules={[Autoplay, Pagination]}
+          slidesPerView={1}
+          loop={true}
+          pagination={{ 
+            bulletClass: 'swiper-pagination-bullet !bg-white transition-all duration-500',
+            bulletActiveClass: 'swiper-pagination-bullet-active !bg-white !opacity-100 !w-5 !rounded',
+            
+          }}
+          autoplay={{ delay: 5000 }}
           className="h-screen"
         >
           <SwiperSlide>
             <div className="flex items-center justify-center h-full">
               <img
-                src="../src/assets/images/ImagemUm.png"
+                src="../src/assets/images/banner-tecnologia.png"
                 alt="Imagem 1"
-                className="max-h-[80%] max-w-[80%] object-contain"
+                className="h-full object-cover"
               />
             </div>
           </SwiperSlide>
           <SwiperSlide>
             <div className="flex items-center justify-center h-full">
               <img
-                src="../src/assets/images/ImagemDois.png"
+                src="../src/assets/images/office.jpg"
                 alt="Imagem 2"
-                className="max-h-[80%] max-w-[80%] object-contain"
+                className="h-full object-cover"
               />
             </div>
           </SwiperSlide>
