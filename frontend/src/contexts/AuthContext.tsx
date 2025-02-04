@@ -11,7 +11,6 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (username: string, password: string, rememberMe: boolean) => Promise<void>;
-  loginWithGoogle: (token: string, rememberMe: boolean) => Promise<void>; // Adicionando a função de login com Google
   logout: () => void;
 }
 
@@ -52,6 +51,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const data = await response.json();
 
+    console.log(data);
+
     if (response.ok) {
       // Armazenar no sessionStorage ou localStorage com base no "Lembrar-me"
       if (rememberMe) {
@@ -69,32 +70,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const loginWithGoogle = async (token: string, rememberMe: boolean) => {
-    const response = await fetch("http://localhost:3000/api/users/login/google", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      // Armazenar no sessionStorage ou localStorage com base no "Lembrar-me"
-      if (rememberMe) {
-        localStorage.setItem("authToken", data.token);
-        localStorage.setItem("user", JSON.stringify({ name: data.name, email: data.email }));
-      } else {
-        sessionStorage.setItem("authToken", data.token);
-        sessionStorage.setItem("user", JSON.stringify({ name: data.name, email: data.email }));
-      }
-
-      setUser({ name: data.name, email: data.email });
-      setIsAuthenticated(true);
-    } else {
-      throw new Error(data.message || "Erro ao fazer login com o Google");
-    }
-  };
-
   const logout = () => {
     // Remover dos dois tipos de armazenamento
     localStorage.removeItem("authToken");
@@ -106,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, isLoading, login, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

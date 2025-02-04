@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { EyeClosed, Eye } from "@phosphor-icons/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css"; // Importação do CSS do Swiper
 import { Autoplay, Pagination } from 'swiper/modules';
-import { GoogleLogin } from "@react-oauth/google"; // Importando o componente GoogleLogin
 
 import 'swiper/css/pagination';
 
@@ -101,30 +100,6 @@ const Login = () => {
     }
   };
 
-  // Função para lidar com o login via Google
-  const handleGoogleLogin = async (response: any) => {
-    try {
-      const { credential } = response;
-      // Enviar o token para o backend para autenticação
-      const res = await fetch("http://localhost:3000/api/users/login/google", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token: credential }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        // Sucesso no login com Google
-        navigate("/home");
-      } else {
-        setError(data.message || "Erro ao fazer login com o Google");
-      }
-    } catch (err) {
-      setError("Erro ao fazer login com o Google");
-    }
-  };
-
   return (
     <div className="flex justify-center h-screen bg-white">
       {/* Lado esquerdo: Carrossel de imagens */}
@@ -165,8 +140,8 @@ const Login = () => {
       {/* Lado direito: Formulário de login */}
       <div className="w-1/2 flex items-center justify-center">
         <div className="flex justify-center flex-col max-w-[400px] w-full">
-          <h2 className="text-3xl font-bold text-start text-gray-800 mb-2">Login</h2>
-          <p className="text-start text-gray-600 mb-8">See your growth and get consulting support!</p>
+          <h2 className="text-3xl font-bold text-start text-gray-800 mb-2">Entrar</h2>
+          <p className="text-start text-gray-600 mb-8">Bem-vindo de volta! Organize seus compromissos agora.</p>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2 ">E-mail*</label>
@@ -175,7 +150,7 @@ const Login = () => {
                 value={username}
                 placeholder="seu_email@mail.com"
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-violet-500"
                 required
               />
             </div>
@@ -184,9 +159,9 @@ const Login = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                placeholder="********"
+                placeholder="••••••••••"
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-violet-500"
                 required
               />
               <button
@@ -224,41 +199,23 @@ const Login = () => {
               </label>
               <p
                 onClick={() => setIsForgotPasswordOpen(true)}
-                className="text-sm text-blue-600 font-semibold hover:underline cursor-pointer"
+                className="text-sm text-violet-600 font-semibold hover:underline cursor-pointer"
               >
                 Esqueceu sua senha?
               </p>
             </div>
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-3xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-6"
+              className="w-full py-2 px-4 bg-violet-600 text-white font-semibold rounded-3xl hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 mt-6"
             >
               Entrar
             </button>
           </form>
-          {/* Linha e "ou" */}
-          <div className="my-6 flex items-center justify-center text-gray-600">
-            <hr className="w-1/4 border-t border-gray-300" />
-            <span className="mx-4">ou</span>
-            <hr className="w-1/4 border-t border-gray-300" />
-          </div>
-          <GoogleLogin
-            onSuccess={handleGoogleLogin} // Sucesso no login com Google
-            onError={() => setError("Erro ao fazer login com o Google")} // Erro no login com Google
-            useOneTap
-            theme="outline"
-            shape="rectangular"
-            size="large"
-          />
           <p className="text-center mt-4 text-sm">
             Não tem conta?{" "}
-            <a
-              href="#"
-              onClick={() => navigate("/register")}
-              className="text-blue-600 font-semibold hover:underline"
-            >
+            <Link to="/register" className="text-violet-600 font-semibold hover:underline">
               Criar conta
-            </a>
+            </Link>
           </p>
         </div>
       </div>
@@ -274,7 +231,7 @@ const Login = () => {
               value={resetEmail}
               onChange={(e) => setResetEmail(e.target.value)}
               placeholder="seu_email@mail.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
             {error && <p className="text-red-500 text-center mt-4">{error}</p>}
             <div className="flex justify-between mt-4">
@@ -286,7 +243,7 @@ const Login = () => {
               </button>
               <button
                 onClick={handleForgotPassword}
-                className="px-4 py-2 bg-blue-600 text-white rounded-3xl"
+                className="px-4 py-2 bg-violet-600 text-white rounded-3xl"
               >
                 Enviar Instruções
               </button>

@@ -21,6 +21,8 @@ const Navbar: React.FC<NavbarProps> = ({ title }) => {
     }
   };
 
+  console.log(user)
+
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
   };
